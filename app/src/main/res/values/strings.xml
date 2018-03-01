@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Playthings</string>
+    <string name="title_shoe_detail">Shoe Detail</string>
+    <string name="feature_image">Feature Image</string>
+</resources>
