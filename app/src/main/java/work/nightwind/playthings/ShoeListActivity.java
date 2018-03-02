@@ -86,10 +86,6 @@ public class ShoeListActivity extends AppCompatActivity {
         }
 
         fetchShoeManifest();
-
-        View recyclerView = findViewById(R.id.shoe_list);
-        assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
     }
 
     private void fetchShoeManifest() {
@@ -111,6 +107,9 @@ public class ShoeListActivity extends AppCompatActivity {
                     }
                 }
                 dialog.hide();
+                View recyclerView = findViewById(R.id.shoe_list);
+                assert recyclerView != null;
+                setupRecyclerView((RecyclerView) recyclerView);
             }
         }, new Response.ErrorListener() {
             @Override
