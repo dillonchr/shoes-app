@@ -101,7 +101,7 @@ public class ShoeListActivity extends AppCompatActivity {
                 for (int i = 0; i < response.length(); i++) {
                     try {
                         JSONObject s = response.getJSONObject(i);
-                        shoes.add(new Shoe(s.getString("name"), s.getString("story"), s.getString("image"), s.getDouble("rating")));
+                        DummyContent.addItem(new Shoe(s.getString("name"), s.getString("story"), s.getString("image"), s.getDouble("rating")));
                     } catch (Exception e) {
                         Log.e("Error", e.getMessage());
                     }
@@ -123,22 +123,21 @@ public class ShoeListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, mTwoPane));
     }
 
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final ShoeListActivity mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
+                Shoe item = (Shoe) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(ShoeDetailFragment.ARG_ITEM_ID, item.id);
+                    arguments.putString(ShoeDetailFragment.ARG_ITEM_ID, item.name);
                     ShoeDetailFragment fragment = new ShoeDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -147,17 +146,14 @@ public class ShoeListActivity extends AppCompatActivity {
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, ShoeDetailActivity.class);
-                    intent.putExtra(ShoeDetailFragment.ARG_ITEM_ID, item.id);
+                    intent.putExtra(ShoeDetailFragment.ARG_ITEM_ID, item.name);
 
                     context.startActivity(intent);
                 }
             }
         };
 
-        SimpleItemRecyclerViewAdapter(ShoeListActivity parent,
-                                      List<DummyContent.DummyItem> items,
-                                      boolean twoPane) {
-            mValues = items;
+        SimpleItemRecyclerViewAdapter(ShoeListActivity parent, boolean twoPane) {
             mParentActivity = parent;
             mTwoPane = twoPane;
         }
@@ -171,20 +167,16 @@ public class ShoeListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            new DownloadImageTask(holder.mImageView).execute("https://shoes.dillonchristensen.com/images/thumbs/colorful-vans.jpg");
-            if (position % 2 == 0) {
-                holder.mContentView.setText(mValues.get(position).content);
-            } else {
-                holder.mContentView.setText(mValues.get(position).fakeout);
-            }
-
-            holder.itemView.setTag(mValues.get(position));
+            Shoe shoe = DummyContent.getShoe(position);
+            new DownloadImageTask(holder.mImageView).execute(shoe.getThumbUrl());
+            holder.mContentView.setText(shoe.name);
+            holder.itemView.setTag(shoe);
             holder.itemView.setOnClickListener(mOnClickListener);
         }
 
         @Override
         public int getItemCount() {
-            return mValues.size();
+            return DummyContent.ITEMS.size();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
